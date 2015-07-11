@@ -1,86 +1,106 @@
-window.onload = function() {
-	var canvas = document.getElementById('studio-clock');
-	var ctx = canvas.getContext('2d');
-	
-	var centerX = canvas.width / 2;
-	var centerY = canvas.height / 2;
-	var radius = canvas.width / 2 - 20;
+(function() {
 
-	function draw() {
-		// Nettoyer le canvas
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-		//canvas.style.backgroundColor = "red";
-		
-		/*ctx.strokeStyle ="#c82124";
-		// Dessiner l'horloge
-		ctx.beginPath();
-		ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false);
-		ctx.lineWidth=10;
-		ctx.stroke();
-		ctx.closePath();*/
+	// Constructeur
+	this.StudioClock = function(id) {
+		console.log(id);
+		//this.test = 'truc';
+		this.canvas = document.getElementById(id);
+		//this.canvas = document.getElementsByTagName('canvas');
+		console.log(this.canvas);
+		this.context = this.canvas.getContext('2d');
+
+		//this.draw();
+		//setInterval(function() {this.draw()}.bind(this), 1000);
+		drawClock.call(this);
+		setInterval(drawClock.bind(this), 1000);
+	}
+
+	// Methode public
+	StudioClock.prototype.draw = function() {
+		console.log('draw : ' + this.test);
+	}
+
+	// Methode privée
+	function drawClock() {
+		var date = new Date();
+		var hours = date.getHours(), minutes = date.getMinutes(), seconds = date.getSeconds();
+
+		this.date = {};
+
+		this.date.hoursDecade = Math.floor((hours / 10) % 10);
+		this.date.hoursUnit = hours % 10;
+
+		this.date.minutesDecade = Math.floor((minutes / 10) % 10);
+		this.date.minutesUnit = minutes % 10;
+
+		this.date.secondsDecade = Math.floor((seconds / 10) % 10);
+		this.date.secondsUnit = seconds % 10;
+
+		//console.log(this.date.hoursDecade + ' ' + this.date.hoursUnite + ' - ' + minutesDecade + ' ' + minutesUnite + ' - ' + secondsDecade + ' ' + secondsUnite);
+		//console.log('drawclock' + this.test);
+
+		this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+		this.context.fillStyle = '#ff0000';
+		this.context.save();
+
+		drawDotCircle.call(this);
+
+		drawDotMatrixDigit.call(this);
+
+		/*this.context.fillStyle="#c82124";
+
+		this.context.beginPath();
+		this.context.arc(this.canvas.width / 2 , this.canvas.height / 2, this.canvas.width / 2, 0, Math.PI * 2);
+		this.context.closePath();
+		this.context.fill();*/
+	}
+
+	function drawDotCircle() {
+		var minutes = parseInt(this.date.minutesDecade + '' + this.date.minutesUnit) + 1;
+		var hours = parseInt(this.date.hoursDecade + '' + this.date.hoursUnit) + 1;
+		var hours12 = ((hours + 11) % 12 + 1);
 
 		for (var i = 0; i < 60; i++) {
-			ctx.beginPath(); // La bouche, un arc de cercle
-			//ctx.arc(75 + i * 60, 75 + i * 60, 10, 0, Math.PI * 2); // Ici aussi
-			/*document.body.innerHTML = 2 / Math.PI;
-			ctx.arc(centerX + i * 60, 20 + i * 60, 10, 0, Math.PI * 2);
-			ctx.lineWidth=10;
-			ctx.stroke();
-			ctx.fill();*/
-
 			var theta = (i - 15) * (Math.PI * 2) / 60;
-			console.log('theta ' + theta);
-			var x = 250 * 0.9 * Math.cos(theta);
-			var y = 250 * 0.9 * Math.sin(theta);
-			console.log('x: ' + x + ' y: ' + y);
+			var x = this.canvas.width / 2 * 0.9 * Math.cos(theta);
+			var y = this.canvas.width / 2 * 0.9 * Math.sin(theta);
 
-			ctx.fillStyle="#c82124";
-			ctx.beginPath();
-			ctx.arc(centerX + x, centerY + y, 5, 0, Math.PI * 2);
-			ctx.closePath();
-			ctx.fill();
-			if(i<12) {
+			if (i == minutes)
+				this.context.fillStyle = '#550000';
+
+			this.context.beginPath();
+			this.context.arc(this.canvas.width / 2 + x , this.canvas.height / 2 + y, 5, 0, Math.PI * 2);
+			this.context.closePath();
+			this.context.fill();
+		}
+		this.context.restore();
+
+		for (var i = 0; i < 12; i++) {
 			var theta = (i - 3) * (Math.PI * 2) / 12;
-			console.log('theta ' + theta);
-			var x = 250 * 0.8 * Math.cos(theta);
-			var y = 250 * 0.8 * Math.sin(theta);
-			console.log('x: ' + x + ' y: ' + y);
-			
-			ctx.beginPath();
-			ctx.arc(centerX + x, centerY + y, 10, 0, Math.PI * 2);
-			ctx.fill();
-			}
-			/*radius = 100;
-			var angle = 0;
-			var step = (2*Math.PI) / 60;
-			var x = Math.round(ctx.canvas.width/2 + radius * Math.cos(angle) - ctx.canvas.width/2),
-        	y = Math.round(ctx.canvas.height/2 + radius * Math.sin(angle) - ctx.canvas.height/2);
-        	console.log(x + ' - ' + y);
-        	console.log(angle);
-        	ctx.arc(x, y, 5, 0, Math.PI * 2);
-        	angle += step;*/
+			var x = this.canvas.width / 2 * 0.8 * Math.cos(theta);
+			var y = this.canvas.width / 2 * 0.8 * Math.sin(theta);
 
-			/*var pos = lineToAngle(ctx.canvas.width * 0.5, ctx.canvas.height * 0.5, ctx.canvas.width * 0.5 * 0.9, i);
-			console.log(pos.x + ' - ' + pos.y);
-			ctx.beginPath();
-			ctx.arc(pos.x, pos.y, 5, 0, Math.PI * 2);
-			ctx.fill();
-			ctx.lineWidth=10;
-			ctx.stroke();*/
+		//	if (i == hours12)
+		//		this.context.fillStyle = '#550000';
+
+			this.context.beginPath();
+			this.context.arc(this.canvas.width / 2 + x , this.canvas.height / 2 + y, 10, 0, Math.PI * 2);
+			this.context.closePath();
+			this.context.fill();
 		}
-        /*        ctx.fillStyle="ivory";
-                ctx.fill();
-                ctx.fillStyle="black";
-                ctx.fillText("12",145,115);*/
+		//this.context.restore();
 	}
 
-	function lineToAngle(x, y, length, angle) {
-		return {
-			x: x + length * Math.cos(angle),
-			y: y + length * Math.sin(angle)
-		}
+	function drawDotMatrixDigit() {
+
 	}
 
-	//                                                                                                                                                                document.addEventListener('load', draw(), false);
-	draw();
-};
+}());
+window.onload = function() {
+	var studioClock = new StudioClock('studio-clock');
+
+//studioClock.drawClock;
+
+//console.log('test ' + studioClock.test);
+}
