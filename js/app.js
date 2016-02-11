@@ -1,5 +1,5 @@
-'use-strick';
+'use-strict';
 
 window.onload = function() {
-	GorgyClock.Clock.init('studio-clock');
+  GorgyClock.Clock.init('studio-clock');
 }
