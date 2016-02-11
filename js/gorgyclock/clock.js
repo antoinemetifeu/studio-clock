@@ -3,46 +3,86 @@
 var GorgyClock = GorgyClock || {};
 
 GorgyClock.Clock = function(self) {
-  var canvas = undefined;
-  var context = undefined;
-  var container = undefined;
+  var canvas        = undefined;
+  var context       = undefined;
+  var container     = undefined;
+
+  var radius        = undefined;
+  var brightenColor = '#ff0000';
+  var darkenColor   = '#220000';
 
   var init = function (id) {
 
     canvas = document.getElementById(id);
     context = canvas.getContext('2d');
     container = canvas.parentNode;
+    radius = canvas.width / 125;
 
+    respondCanvas();
+    DrawDigitalClock();
+
+    setInterval(updateClock.bind(this), 500);
+  };
+
+  var respondCanvas = function() {
+    canvas.size = 
+      (container.offsetHeight >= container.offsetWidth) ?
+        container.offsetWidth:
+        container.offsetHeight;
+    canvas.setAttribute('width', canvas.size + 'px' ); //max width
+    canvas.setAttribute('height', canvas.size + 'px' ); //max height
+
+    radius = canvas.width / 125;
+  };
+
+  var updateClock = function() {
+    respondCanvas();
     DrawDigitalClock();
   };
 
   var DrawDigitalClock = function() {
     var date = new Date();
-    var hours   = '' + (date.getHours() < 10 ? '0' + date.getHours(): date.getHours()),
-        minutes = '' + (date.getMinutes() < 10 ? '0' + date.getMinutes(): date.getMinutes()),
-        seconds = '' + (date.getSeconds() < 10 ? '0' + date.getSeconds(): date.getSeconds());
+    var hours   = '' +
+          (date.getHours() < 10 ? '0' + date.getHours(): date.getHours()),
+        minutes = '' +
+          (date.getMinutes() < 10 ? '0' + date.getMinutes(): date.getMinutes()),
+        seconds = '' +
+          (date.getSeconds() < 10 ? '0' + date.getSeconds(): date.getSeconds());
 
 
     context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillStyle = '#ff0000';
-    context.save();
 
+    context.translate((canvas.width/2) - (radius * (87 / 2)), 0);
 
     DrawDigitSegment(hours.substring(0, 1));
-    context.translate(75, 0);
+
+    context.translate(radius * 21, 0);
     DrawDigitSegment(hours.substring(1));
-    context.translate(105, 0);
+    context.translate(-(radius * 21), 0);
+
+    context.translate(radius * 51, 0);
     DrawDigitSegment(minutes.substring(0, 1));
-    context.translate(75, 0);
+    context.translate(-(radius * 51), 0);
+
+    context.translate(radius * 72, 0);
     DrawDigitSegment(minutes.substring(1));
-    context.translate(-165, 150);
+    context.translate(-(radius * 72), 0);
+
+    context.translate(-((canvas.width/2) - (radius * (87 / 2))), 0);
+
+    context.translate((canvas.width/2) - (radius * (38 / 2)), 0);
+
+    context.translate(0, radius * 37);
     DrawDigitSegment(seconds.substring(0, 1));
-    context.translate(75, 0);
+    context.translate(0, -(radius * 37));
+
+    context.translate(radius * 21, radius * 37);
     DrawDigitSegment(seconds.substring(1));
+    context.translate(-(radius * 21), radius * 37);
 
   }
 
-  var DrawDigitSegment = function(digit) { //(positions, radius, brighten) {
+  var DrawDigitSegment = function(digit) {
 
     /**
      *   1
@@ -64,64 +104,64 @@ GorgyClock.Clock = function(self) {
       [1, 1, 1, 0, 0, 1, 1]
     ];
 
-    var radius = canvas.width / 100; // Radius of Dot Segment
-
     for(var i = 0; i < 7; i++) {
+
+      context.translate(radius, radius);
 
       switch(i) {
         case 0:
-          context.translate(radius * 4, radius);
+          context.translate(radius * 3, 0);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
-          context.translate(-(radius * 4), -radius);
+          context.translate(-(radius * 3), 0);
         break;
         case 1:
-          context.translate(radius * 13, radius * 4);
+          context.translate(radius * 12, radius * 3);
           context.rotate((Math.PI / 180) * 90);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
           context.rotate((Math.PI / 180) * -90);
-          context.translate(-(radius * 13), -(radius * 4));
+          context.translate(-(radius * 12), -(radius * 3));
         break;
         case 2:
-          context.translate(radius * 13, radius * 16);
+          context.translate(radius * 12, radius * 15);
           context.rotate((Math.PI / 180) * 90);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
           context.rotate((Math.PI / 180) * -90);
-          context.translate(-(radius * 13), -(radius * 16));
+          context.translate(-(radius * 12), -(radius * 15));
         break;
         case 3:
-          context.translate(radius * 4, radius * 25);
+          context.translate(radius * 3, radius * 24);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
-          context.translate(-(radius * 4), -(radius * 25));
+          context.translate(-(radius * 3), -(radius * 24));
         break;
         case 4:
-          context.translate(radius, radius * 16);
+          context.translate(0, radius * 15);
           context.rotate((Math.PI / 180) * 90);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
           context.rotate((Math.PI / 180) * -90);
-          context.translate(-radius, -(radius * 16));
+          context.translate(0, -(radius * 15));
         break;
         case 5:
-          context.translate(radius, radius * 4);
+          context.translate(0, radius * 3);
           context.rotate((Math.PI / 180) * 90);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
           context.rotate((Math.PI / 180) * -90);
-          context.translate(-radius, -(radius * 4));
+          context.translate(0, -(radius * 3));
         break;
         case 6:
-          context.translate(radius * 4, radius * 13);
+          context.translate(radius * 3, radius * 12);
           DrawDotSegment((digitSegment[digit][i] ? true: false));
-          context.translate(-(radius * 4), -(radius * 13));
+          context.translate(-(radius * 3), -(radius * 12));
         break;
       }
+
+      context.translate(-radius, -radius);
 
     }
 
   }
 
   var DrawDotSegment = function(brighten) {
-    var radius = canvas.width / 100; // Radius of Dot Segment
-
-    context.fillStyle = brighten ? '#ff0000': '#220000';
+    context.fillStyle = brighten ? brightenColor: darkenColor;
 
     context.beginPath();
     context.arc(0, 0, radius, 0, Math.PI * 2);
@@ -132,7 +172,8 @@ GorgyClock.Clock = function(self) {
   }
 
   return {
-    init: init
+    init: init,
+    respondCanvas: respondCanvas
   };
 
 }(GorgyClock.Clock || {});
